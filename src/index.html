@@ -1,5 +1,37 @@
 //= parts/head.html
-    <h1>Header</h1>
-    <h1>Hqwd wqd 2</h1>
-    <h1>Head3r2</h1>
-//= parts/footer-links
+<div class="global-wrapper">
+    //= parts/header.html
+    <div class="main">
+        <div class="mbox">
+            <ul>
+                <li><a href="main.html">main</a></li>
+
+            </ul>
+            <br>
+            <hr>
+            <div class="title">
+                <h2>содержимое спрайта</h2>
+            </div>
+            <div class="svg-container"></div>
+        </div>
+    </div>
+    //= parts/footer.html
+    //= parts/footer-links.html
+    <style>
+        .svg-container{display: flex;justify-content: space-between; align-items: flex-start; flex-wrap: wrap;border: 1px solid #0f0f11;}
+        .svg-container div{width: 200px; padding: 10px; border: 1px solid #0f0f11; flex-grow: 1;}
+        .svg-container svg{width: 100%;}
+    </style>
+    <script>
+        $(document).ready(function(){
+            $('body>svg symbol').each(function(){
+                var id = $(this).attr('id');
+                var div = document.createElement('div');
+                $(div).html('<svg><use xlink:href="#'+id+'"></use></svg><p>#'+id+'</p>');
+                $('.svg-container').append(div);
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

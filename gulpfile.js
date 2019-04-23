@@ -3,6 +3,7 @@ const gulp = require('gulp'),
     autoprefix = require('gulp-autoprefixer'),
     cleanCSS = require('gulp-clean-css'),
     uglify = require('gulp-uglify'),
+    cache = require('gulp-cached'),
     del = require('del'),
     rigger = require('gulp-rigger'),
     sass = require('gulp-sass'),
@@ -21,6 +22,7 @@ const gulp = require('gulp'),
     src = {
         php: 'src/*.php',
         html: 'src/*.html',
+        partsHtml: 'src/parts/*.html',
         csslib: 'src/scss/plugins/*.scss',
         cssdev: 'src/scss/*.scss',
         jslib: 'src/js/plugins/*.js',
@@ -36,7 +38,9 @@ const gulp = require('gulp'),
 
 function img() {
     return  gulp.src(src.images)
-            .pipe(gulp.dest(build.images))
+        .pipe(cache())
+        .pipe(gulp.dest(build.images))
+        .pipe(browserSync.stream());
 }
 function imgmin() {
     return  gulp.src(src.images)
@@ -50,11 +54,13 @@ function php() {
 }
 function html() {
     return gulp.src(src.html)
+        .pipe(cache())
         .pipe(rigger())
         .pipe(gulp.dest(build.html));
 }
 function pluginsCSS(){
     return gulp.src(src.csslib)
+        .pipe(cache())
         .pipe(sass().on('error', sass.logError))
         .pipe(concat('plugins.css'))
         .pipe(cleanCSS({level: 2}))
@@ -62,6 +68,7 @@ function pluginsCSS(){
 }
 function devCSS() {
     return gulp.src(src.cssdev)
+        .pipe(cache())
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefix({
             browsers: ['> 0.1%'],
@@ -73,6 +80,7 @@ function devCSS() {
 }
 function pluginsJS() {
     return gulp.src(src.jslib)
+        .pipe(cache())
         .pipe(concat('plugins.js'))
         .pipe(uglify({
             toplevel:true
@@ -81,6 +89,7 @@ function pluginsJS() {
 }
 function devJS() {
     return gulp.src(src.jsdev)
+        .pipe(cache())
         .pipe(gulp.dest(build.js))
         .pipe(browserSync.stream());
 }
@@ -90,8 +99,10 @@ function cleanBuild() {
 function watch() {
     browserSync.init(config);
     gulp.watch(src.cssdev, devCSS);
-    gulp.watch(src.jsdev, devJS);
+    gulp.watch(src.jsdev, devJS).on('change', browserSync.reload);
+    gulp.watch(src.images, img).on('change', browserSync.reload);
     gulp.watch(src.html, html).on('change', browserSync.reload);
+    gulp.watch(src.partsHtml, html).on('change', browserSync.reload);
     gulp.watch(src.php, php).on('change', browserSync.reload);
 }
 gulp.task('connect', function() {
